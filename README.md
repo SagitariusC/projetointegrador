@@ -14,7 +14,7 @@ cadastro de produtos(tela_produtos_cadastro_engenharia_software),
 edição de produtos(tela_produtos_edicao_engenharia_software)
 e balanço de estoque(tela_balanco_estoque_engenharia_software).
 
-# Pasta frontend
+# Pasta Frontend
 Contêm os códigos do front-end do sistema. 
 Para executar é necessário copiar ou baixar e dar um npm install e npm run dev no terminal
 da pasta.
