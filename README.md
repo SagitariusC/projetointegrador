@@ -6,7 +6,7 @@ Alunos: Bruno Vieira Florisbal (matrícula 1921101033) e Willian Patrick Gonçal
 # Pasta Documentos
 Contêm todos os documentos necessários para a aplicação, nele
 está o arquivo "requisitos.pdf" onde se econtram os requisitos 
-do sistema, também tem o arquivo "Trabalho Integrador - Modelo Conceitual.png"
+do sistema, também tem o arquivo "Trabalho Integrador - Modelo Conceitual Ajustado.png"
 e o "linkmodeloconceitual" que são o png e a base do modelo modelo conceitual 
 conforme os requisitos utilizando do brModelo.
 Tmabém possuí as telas de engenharia, que são a de produtos (tela_produtos_engenharia_software),
