@@ -9,7 +9,7 @@ está o arquivo "requisitos.pdf" onde se econtram os requisitos
 do sistema, também tem o arquivo "Trabalho Integrador - Modelo Conceitual Ajustado.png"
 e o "linkmodeloconceitual" que são o png e a base do modelo modelo conceitual 
 conforme os requisitos utilizando do brModelo.
-Tmabém possuí as telas de engenharia, que são a de produtos (tela_produtos_engenharia_software),
+Também possuí as telas de engenharia, que são a de produtos (tela_produtos_engenharia_software),
 cadastro de produtos(tela_produtos_cadastro_engenharia_software),
 edição de produtos(tela_produtos_edicao_engenharia_software)
 e balanço de estoque(tela_balanco_estoque_engenharia_software).
