@@ -2,11 +2,22 @@ axios.defaults.baseURL = "http://localhost:3002/";
 axios.defaults.headers.common["Content-Type"] =
     "application/json;charset=utf-8";
 
+const token = localStorage.getItem("token");
 
+
+//Abaxio ao clicar no link de sair é feito o logout
+$(document).on("click", "#logoutSair", function (e) {
+  e.preventDefault();
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+});
     
+
+
 $(document).ready(() => {
     loadDataTable();
 });
+
 
 
 
@@ -58,10 +69,11 @@ function createAjaxPost() {
         stat: $('#stat')[0].value
     }
 
-    const res = axios.post('/produtos', data);
+    const res = axios.post('/produtos', data, {headers: {Authorization: `Bearer ${token}`}});
     res.then((query) => {
         console.log(query.data);
-      
+ 
+        alert("Produto cadastrado com sucesso!");
         // Limpar os campos do formulário após sucesso
         $('#codprod').val('');
         $('#nome').val('');
@@ -82,7 +94,7 @@ function createAjaxPost() {
 
 //Faz um get dos produtos
 function loadDataTable() {
-    axios.get('/produtos')
+    axios.get('/produtos', {headers: {Authorization: `Bearer ${token}`}})
         .then((response) => {
             processResults(response.data);
         })
@@ -134,13 +146,15 @@ function processResults(rows) {
 //Ao clicar no botão delete da tabela criada na função processResults ele deleta conforme o valor do código do produto desse botão
 $(document).on('click', '.btnDelete', function () {
     const id = $(this).data('id');
-    axios.delete(`/produtos/${id}`)
+    
+    axios.delete(`/produtos/${id}`,{headers: {Authorization: `Bearer ${token}`}})
         .then((response) => {
             loadDataTable(); 
         })
         .catch((error) => {
             console.error(error);
-        });
+    });
+
 });
 
 
@@ -148,7 +162,7 @@ $(document).on('click', '.btnDelete', function () {
 $(document).on('click', '.btnEdit', function () {
     const cod = $(this).data('id');
 
-    axios.get(`/produtos/${cod}`)
+    axios.get(`/produtos/${cod}`,{headers: {Authorization: `Bearer ${token}`}})
         .then((res) => {
             const produto = res.data;
             $('#editCod').val(produto.cod_prod);
@@ -208,7 +222,7 @@ function createAjaxPut() {
         stat: $('#editStatus').val()
     };
     
-    axios.put(`/produtos/${cod}`, data)
+    axios.put(`/produtos/${cod}`, data, {headers: {Authorization: `Bearer ${token}`}})
         .then(() => {
             $('#modalEdit').modal('hide');
             $('#editForm').validate().resetForm();

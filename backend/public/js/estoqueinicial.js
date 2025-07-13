@@ -2,8 +2,20 @@ axios.defaults.baseURL = "http://localhost:3002/";
 axios.defaults.headers.common["Content-Type"] =
     "application/json;charset=utf-8";
 
-
+const token = localStorage.getItem("token");
     
+
+
+//Abaixo ao clicar no link de sair é feito o logout
+$(document).on("click", "#logoutSair", function (e) {
+  e.preventDefault();
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+});
+    
+
+
+
 $(document).ready(() => {
     loadDataTable();
 });
@@ -70,10 +82,10 @@ function createAjaxPost() {
         datest: $('#datest')[0].value,
     }
 
-    const res = axios.post('/estoqueinicial', data);
+    const res = axios.post('/estoqueinicial', data, {headers: {Authorization: `Bearer ${token}`}});
     res.then((query) => {
         console.log(query.data);
-      
+        alert("Estoque inicial cadastrado com sucesso!");
         // Limpar os campos do formulário após sucesso
         $('#codprod').val('');
         $('#nome').val('');
@@ -90,6 +102,13 @@ function createAjaxPost() {
     }).catch((error) => {
         console.log(error);
     });
+
+    const res2 = axios.post('/historicoinicial', data, {headers: {Authorization: `Bearer ${token}`}});
+    res2.then((query) => {
+        console.log(query.data);
+        }).catch((error) => {
+        console.log(error);
+    });
 }
 
 
@@ -97,7 +116,7 @@ function createAjaxPost() {
 //Faz um get do estoque
 function loadDataTable() {
 
-    axios.get('/estoqueinicial')
+    axios.get('/estoqueinicial', {headers: {Authorization: `Bearer ${token}`}})
         .then((response) => {
             processResults(response.data);
         })
@@ -163,7 +182,7 @@ $(document).on('click', '.btnDelete', function () {
     const datafab = $(this).data('datafab');
   
 
-    axios.delete(`/estoqueinicial/${id}/${datafab}`)
+    axios.delete(`/estoqueinicial/${id}/${datafab}`, {headers: {Authorization: `Bearer ${token}`}})
         .then((response) => {
             loadDataTable(); 
         })
@@ -180,7 +199,7 @@ $(document).on('click', '.btnEdit', function () {
     const cod = $(this).data('id');
     const datafab = $(this).data('datafab');
 
-    axios.get(`/estoqueinicial/${cod}/${datafab}`)
+    axios.get(`/estoqueinicial/${cod}/${datafab}`, {headers: {Authorization: `Bearer ${token}`}})
         .then((res) => {
 
             const estoque = res.data;
@@ -244,7 +263,7 @@ $('#editForm').validate({
 });
 
 
-
+//Update do estoque inicial
 function createAjaxPut() {
 
     const cod = $('#btnSaveEdit').data('id');
@@ -259,7 +278,7 @@ function createAjaxPut() {
 
     };
     
-    axios.put(`/estoqueinicial/${cod}/${datafab}`, data)
+    axios.put(`/estoqueinicial/${cod}/${datafab}`, data, {headers: {Authorization: `Bearer ${token}`}})
         .then(() => {
 
             $('#modalEdit').modal('hide');
@@ -288,7 +307,7 @@ document.getElementById("codprod").addEventListener("input", async function () {
 
      try {
 
-         const resposta = await axios.get(`/filtraprodutos/${cod}`);
+         const resposta = await axios.get(`/filtraprodutos/${cod}`, {headers: {Authorization: `Bearer ${token}`}});
          const produtos = resposta.data;
          const sugestoesDiv = document.getElementById("sugestoes");
          sugestoesDiv.innerHTML = "";   

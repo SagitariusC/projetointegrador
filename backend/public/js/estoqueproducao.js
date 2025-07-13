@@ -2,12 +2,40 @@ axios.defaults.baseURL = "http://localhost:3002/";
 axios.defaults.headers.common["Content-Type"] =
     "application/json;charset=utf-8";
 
+const token = localStorage.getItem("token");
 
+
+
+//Abaxio ao clicar no link de sair é feito o logout
+$(document).on("click", "#logoutSair", function (e) {
+  e.preventDefault();
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+});
     
+
+
+
+//Aqui a data do formulário não é possível alterar e sempra pega a data atual.
 $(document).ready(() => {
     loadDataTable();
-});
+    
+    //Pega a data de hoje e adiciona no modal impedindo que o usuário digite do MainForm
+    const hoje = new Date().toLocaleDateString('en-CA');
+    $('#datest').val(hoje);
+    $('#datest').attr('readonly', true); 
+    $('#datest').on('keydown click', (e) => {
+        e.preventDefault();
+    });
 
+     //Pega a data de hoje e adiciona no modal impedindo que o usuário digite do editForm
+    $('#editDatest').val(hoje);
+    $('#editDatest').attr('readonly', true);
+    $('#editDatest').on('keydown click', (e) => {
+        e.preventDefault();
+    });
+    
+});
 
 
 //Ao clicar no botão de novo é feito o submit do mainForm
@@ -69,11 +97,13 @@ function createAjaxPost() {
         validade: $('#validade')[0].value,
         datest: $('#datest')[0].value,
     }
+    
+    const codProd = data.cod;
+    const qdtdesti = parseInt(data.qtdest);
 
-    const res = axios.post('/estoqueproducao', data);
+    const res = axios.post('/estoqueproducao', data, {headers: {Authorization: `Bearer ${token}`}});
     res.then((query) => {
         console.log(query.data);
-      
         // Limpar os campos do formulário após sucesso
         $('#codprod').val('');
         $('#nome').val('');
@@ -90,6 +120,25 @@ function createAjaxPost() {
     }).catch((error) => {
         console.log(error);
     });
+    
+    //Abaixo verificar se tem historico estoque do produto no dia, caso sim então é feito a atualização conforme o valor e caso não é inserido no historico.
+    axios.get(`/contagemhistoricoestoque/${codProd}`, {headers: {Authorization: `Bearer ${token}`}}).then((response) => {
+          const quantidade = response.data;
+          if (quantidade.qtd === "0") {
+            axios.post('/historicoestoque', {
+                cod: codProd,
+                qtdest: qdtdesti,
+                qtdVendas: 0
+            }, {headers: {Authorization: `Bearer ${token}`}});  
+          } else{
+            axios.put('/historicoestoqueproducao', { cod: codProd }, {headers: {Authorization: `Bearer ${token}`}});
+          }
+
+        })
+          .catch((error) => {
+            console.error("Erro na requisição:", error);
+    });
+
 }
 
 
@@ -97,7 +146,7 @@ function createAjaxPost() {
 //Faz um get do estoque
 function loadDataTable() {
 
-    axios.get('/estoqueproducao')
+    axios.get('/estoqueproducao', {headers: {Authorization: `Bearer ${token}`}})
         .then((response) => {
             processResults(response.data);
         })
@@ -142,7 +191,7 @@ function processResults(rows) {
         resultsTable += `<td>${passaDataAnoMesDia(rows[i].datafab_est)}</td>`
         resultsTable += `<td><div class="d-flex" style="gap: 10px;">
                           <button class="btnEdit btn btn-warning" data-id="${rows[i].cod_prod}" data-datafab="${passaDataAnoMesDia(rows[i].datafab_est)}">Editar</button>
-                           <button class="btnDelete btn btn-danger" data-id="${rows[i].cod_prod}" data-datafab="${passaDataAnoMesDia(rows[i].datafab_est)}">Deletar</button>
+                           <button class="btnDelete btn btn-danger" data-id="${rows[i].cod_prod}" data-datafab="${passaDataAnoMesDia(rows[i].datafab_est)}" data-qtdprod="${rows[i].qtd_est}">Deletar</button>
                         </div></td></tr>`
     }
     resultsTable += `
@@ -161,15 +210,30 @@ $(document).on('click', '.btnDelete', function () {
 
     const id = $(this).data('id');
     const datafab = $(this).data('datafab');
-  
+    const qtd_vend = $(this).data('qtdprod');
+    
+    data = {
+        cod: id,
+        dataprod : datafab,
+        qtd_prod : qtd_vend
+    }
 
-    axios.delete(`/estoqueproducao/${id}/${datafab}`)
+    axios.delete(`/estoqueproducao/${id}/${datafab}`, {headers: {Authorization: `Bearer ${token}`}})
         .then((response) => {
             loadDataTable(); 
         })
         .catch((error) => {
             console.error(error);
         });
+
+    //Atuliza dados do histórico de estoque sem as vendas referente a data que foi deletada a venda.
+    axios.put(`/historicoestoqueaodeletarproducao`, data, {headers: {Authorization: `Bearer ${token}`}})
+        .then((response) => {
+            loadDataTable(); 
+        })
+        .catch((error) => {
+            console.error(error);
+    });
 
 });
 
@@ -180,7 +244,7 @@ $(document).on('click', '.btnEdit', function () {
     const cod = $(this).data('id');
     const datafab = $(this).data('datafab');
 
-    axios.get(`/estoqueproducao/${cod}/${datafab}`)
+    axios.get(`/estoqueproducao/${cod}/${datafab}`, {headers: {Authorization: `Bearer ${token}`}})
         .then((res) => {
 
             const estoque = res.data;
@@ -194,6 +258,7 @@ $(document).on('click', '.btnEdit', function () {
             //Adiciona código ao botão de salvar edição
             $('#btnSaveEdit').data('id', cod); 
             $('#btnSaveEdit').data('dtfab', datafab); 
+            $('#btnSaveEdit').data('qtd_anterior', estoque.qtd_est); 
 
             $('#modalEdit').modal('show');
 
@@ -249,6 +314,17 @@ function createAjaxPut() {
 
     const cod = $('#btnSaveEdit').data('id');
     const datafab = $('#btnSaveEdit').data('dtfab');
+    const qtd_anterior =$('#btnSaveEdit').data('qtd_anterior');
+
+    const data_ant = {
+
+        cod: cod,
+        datest: datafab,
+        qtd_anterior: qtd_anterior,
+        qtd_novo: $('#editQtdest').val()
+
+    }
+
 
     const data = {
 
@@ -259,7 +335,7 @@ function createAjaxPut() {
 
     };
     
-    axios.put(`/estoqueproducao/${cod}/${datafab}`, data)
+    axios.put(`/estoqueproducao/${cod}/${datafab}`, data, {headers: {Authorization: `Bearer ${token}`}})
         .then(() => {
 
             $('#modalEdit').modal('hide');
@@ -271,6 +347,31 @@ function createAjaxPut() {
 
             console.error("Erro ao atualizar produção:", error);
         });
+
+    axios.put(`/estoqueproducao/${cod}/${datafab}`, data, {headers: {Authorization: `Bearer ${token}`}})
+        .then(() => {
+
+            $('#modalEdit').modal('hide');
+            $('#editForm').validate().resetForm();
+            loadDataTable();
+
+        })
+        .catch((error) => {
+
+            console.error("Erro ao atualizar produção:", error);
+    });
+
+    axios.put(`/historicoestoqueproducaoedicao`, data_ant, {headers: {Authorization: `Bearer ${token}`}})
+        .then(() => {
+            console.log("Editado historico de estoque.")
+        })
+        .catch((error) => {
+
+            console.error("Erro ao atualizar produção:", error);
+    });
+
+
+
 }
 
 
@@ -288,7 +389,7 @@ document.getElementById("codprod").addEventListener("input", async function () {
 
      try {
 
-         const resposta = await axios.get(`/filtraprodutos/${cod}`);
+         const resposta = await axios.get(`/filtraprodutos/${cod}`, {headers: {Authorization: `Bearer ${token}`}});
          const produtos = resposta.data;
          const sugestoesDiv = document.getElementById("sugestoes");
          sugestoesDiv.innerHTML = "";   

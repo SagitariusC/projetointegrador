@@ -2,10 +2,35 @@ axios.defaults.baseURL = "http://localhost:3002/";
 axios.defaults.headers.common["Content-Type"] =
     "application/json;charset=utf-8";
 
+const token = localStorage.getItem("token");
 
+//Abaxio ao clicar no link de sair é feito o logout
+$(document).on("click", "#logoutSair", function (e) {
+  e.preventDefault();
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+});
     
+
+
 $(document).ready(() => {
     loadDataTable();
+    
+    //Pega a data de hoje e adiciona no modal impedindo que o usuário digite do MainForm
+    const hoje = new Date().toLocaleDateString('en-CA');
+    $('#datest').val(hoje);
+    $('#datest').attr('readonly', true); 
+    $('#datest').on('keydown click', (e) => {
+        e.preventDefault();
+    });
+
+     //Pega a data de hoje e adiciona no modal impedindo que o usuário digite do editForm
+    $('#editDatest').val(hoje);
+    $('#editDatest').attr('readonly', true);
+    $('#editDatest').on('keydown click', (e) => {
+        e.preventDefault();
+    });
+
 });
 
 
@@ -70,26 +95,44 @@ function createAjaxPost() {
         datest: $('#datest')[0].value,
     }
 
-    const res = axios.post('/estoquecontado', data);
-    res.then((query) => {
-        console.log(query.data);
-      
-        // Limpar os campos do formulário após sucesso
-        $('#codprod').val('');
-        $('#nome').val('');
-        $('#grupo').val('');
-        $('#qtdest').val('');
-        $('#validade').val('');
-        $('#datest').val('');
+    const codProd = data.cod;
+    
+    axios.get(`/contagemestoqueinicial/${codProd}`, {headers: {Authorization: `Bearer ${token}`}}).then((response) => {
+          const quantidade = response.data;
+          if (quantidade.qtd === "0") {
+              $('#mainForm').validate().showErrors({
+                    "codprod": "Não existe um cadastro de Produto ou Estoque Inicial com esse código."
+                });
+          } else{
+              const res = axios.post('/estoquecontado', data, {headers: {Authorization: `Bearer ${token}`}});
+                 res.then((query) => {
+                 console.log(query.data);
+                 alert("Contagem de estoque cadastrado com sucesso!");
+                 // Limpar os campos do formulário após sucesso
+                 $('#codprod').val('');
+                 $('#nome').val('');
+                 $('#grupo').val('');
+                 $('#qtdest').val('');
+                 $('#validade').val('');
+                 $('#datest').val('');
 
-        // Resetar a validação do formulário
-        $('#mainForm').validate().resetForm();
+                 // Resetar a validação do formulário
+                 $('#mainForm').validate().resetForm();
 
-        // Após inserir, buscar e exibir todos os dados
-        loadDataTable();
-    }).catch((error) => {
-        console.log(error);
+                  // Após inserir, buscar e exibir todos os dados
+                 loadDataTable();
+             }).catch((error) => {
+             console.log(error);
+           });
+
+          }
+        })
+          .catch((error) => {
+            console.error("Erro ao contar estoque inicial:", error);
     });
+     
+
+
 }
 
 
@@ -97,7 +140,7 @@ function createAjaxPost() {
 //Faz um get do estoque
 function loadDataTable() {
 
-    axios.get('/estoquecontado')
+    axios.get('/estoquecontado', {headers: {Authorization: `Bearer ${token}`}})
         .then((response) => {
             processResults(response.data);
         })
@@ -163,7 +206,7 @@ $(document).on('click', '.btnDelete', function () {
     const datafab = $(this).data('datafab');
   
 
-    axios.delete(`/estoquecontado/${id}/${datafab}`)
+    axios.delete(`/estoquecontado/${id}/${datafab}`,{headers: {Authorization: `Bearer ${token}`}})
         .then((response) => {
             loadDataTable(); 
         })
@@ -180,7 +223,7 @@ $(document).on('click', '.btnEdit', function () {
     const cod = $(this).data('id');
     const datafab = $(this).data('datafab');
 
-    axios.get(`/estoquecontado/${cod}/${datafab}`)
+    axios.get(`/estoquecontado/${cod}/${datafab}`,{headers: {Authorization: `Bearer ${token}`}})
         .then((res) => {
 
             const estoque = res.data;
@@ -259,7 +302,7 @@ function createAjaxPut() {
 
     };
     
-    axios.put(`/estoquecontado/${cod}/${datafab}`, data)
+    axios.put(`/estoquecontado/${cod}/${datafab}`, data, {headers: {Authorization: `Bearer ${token}`}})
         .then(() => {
 
             $('#modalEdit').modal('hide');
@@ -287,12 +330,15 @@ document.getElementById("codprod").addEventListener("input", async function () {
      }
 
      try {
-
-         const resposta = await axios.get(`/filtraprodutos/${cod}`);
+         
+         //Filtra produtos de acordo com o código digitado
+         const resposta = await axios.get(`/filtraprodutos/${cod}`, {headers: {Authorization: `Bearer ${token}`}});
          const produtos = resposta.data;
          const sugestoesDiv = document.getElementById("sugestoes");
          sugestoesDiv.innerHTML = "";   
-
+        
+         //Percorre lista de produtos criando novos itens para seleção e ao selecionar um é preenchido.
+         //Ideia de inserção automática
          produtos.forEach(produto => {
              const item = document.createElement("a");
              item.classList.add("list-group-item", "list-group-item-action");
@@ -301,6 +347,7 @@ document.getElementById("codprod").addEventListener("input", async function () {
              document.getElementById("codprod").value = produto.cod_prod;
              document.getElementById("nome").value = produto.nome_prod;
              document.getElementById("grupo").value = produto.grupo_produto;
+        
              sugestoesDiv.innerHTML = "";
      });
        sugestoesDiv.appendChild(item); });
