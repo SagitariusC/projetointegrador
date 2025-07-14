@@ -14,6 +14,8 @@ const db = pgp(`postgres://${usuario}:${senha}@localhost:5432/banco`);
 
 const app = express();
 app.use(express.json());
+const cors = require('cors');
+app.use(cors());
 
 // busca os arquivos 'estáticos' na pasta 'public': JS e CSS
 app.use(express.static(__dirname + "/public"));
