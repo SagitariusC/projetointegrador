@@ -4,14 +4,14 @@ axios.defaults.headers.common["Content-Type"] =
 
 const token = localStorage.getItem("token");
 
-
 //Abaxio ao clicar no link de sair é feito o logout
 $(document).on("click", "#logoutSair", function (e) {
   e.preventDefault();
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 });
     
+
 
 
 $(document).ready(() => {
@@ -69,6 +69,8 @@ function createAjaxPost() {
         stat: $('#stat')[0].value
     }
 
+
+
     const res = axios.post('/produtos', data, {headers: {Authorization: `Bearer ${token}`}});
     res.then((query) => {
         console.log(query.data);
@@ -78,7 +80,6 @@ function createAjaxPost() {
         $('#codprod').val('');
         $('#nome').val('');
         $('#grupo').val('');
-        $('#stat').val('');
 
         // Resetar a validação do formulário
         $('#mainForm').validate().resetForm();

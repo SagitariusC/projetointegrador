@@ -8,7 +8,7 @@ const token = localStorage.getItem("token");
 $(document).on("click", "#logoutSair", function (e) {
   e.preventDefault();
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 });
     
 
@@ -114,8 +114,7 @@ function createAjaxPost() {
                  $('#grupo').val('');
                  $('#qtdest').val('');
                  $('#validade').val('');
-                 $('#datest').val('');
-
+           
                  // Resetar a validação do formulário
                  $('#mainForm').validate().resetForm();
 
@@ -304,7 +303,7 @@ function createAjaxPut() {
     
     axios.put(`/estoquecontado/${cod}/${datafab}`, data, {headers: {Authorization: `Bearer ${token}`}})
         .then(() => {
-
+           
             $('#modalEdit').modal('hide');
             $('#editForm').validate().resetForm();
             loadDataTable();

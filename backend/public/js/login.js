@@ -20,10 +20,12 @@ document.getElementById('mainForm').addEventListener('submit', async function (e
 
       //Abaixo pega o retorno da permissão para pode dar acesso a telas especifica
       const payload = JSON.parse(atob(token.split('.')[1]));
-      window.location.href = 'index.html';
+      window.location.href = 'balanco.html';
     } catch (err) {
       alert('Usuário ou senha errados.');
       console.error(err);
     }
   });
+
+ 
 

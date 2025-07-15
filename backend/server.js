@@ -10,7 +10,7 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 
 const usuario = "postgres";
 const senha = "senha";
-const db = pgp(`postgres://${usuario}:${senha}@localhost:5432/banco`);
+const db = pgp(`postgres://${usuario}:${senha}@localhost:5432/controle_estoque`);
 
 const app = express();
 app.use(express.json());
@@ -121,7 +121,7 @@ function requirePermissao(permissoesPermitidas) {
 //Pega todos os produtos
 app.get("/produtos", requirePermissao(["VEN", "ADM", "CON", "PRD"]), async (req, res) => {
   try {
-    const produtos = await db.any("SELECT cod_prod, nome_prod, grupo_produto, status_prod FROM produto order by cod_prod;");
+    const produtos = await db.any("SELECT cod_prod, nome_prod, grupo_produto, CASE WHEN status_prod = true then 'Ativo' else 'Inativo' end as status_prod FROM produto order by cod_prod;");
     console.log("Retornando todos os produtos.");
     res.status(200).json(produtos);
   } catch (error) {
@@ -137,7 +137,7 @@ app.get("/produtos/:id", requirePermissao(["VEN", "ADM", "CON", "PRD"]), async (
     const cod = req.params.id;
     console.log(`Retornando ID: ${cod}.`);
     const produtos = await db.one(
-      "SELECT cod_prod, nome_prod, grupo_produto, status_prod FROM produto WHERE cod_prod = $1;",[cod]
+      "SELECT cod_prod, nome_prod, grupo_produto, cast(status_prod as varchar) as status_prod FROM produto WHERE cod_prod = $1;",[cod]
     );
     res.json(produtos).status(200);
   } catch (error) {
@@ -147,13 +147,13 @@ app.get("/produtos/:id", requirePermissao(["VEN", "ADM", "CON", "PRD"]), async (
 });
 
 
-//Abaixo pega os produtos com base no código informado
+//Abaixo filtra os produtos com base no código informado
 app.get("/filtraprodutos/:id", requirePermissao(["VEN", "ADM", "CON", "PRD"]), async (req, res) => {
   try {
     const cod = req.params.id;
     console.log(`Retornando ID: ${cod}.`);
     const produtos = await db.any(
-      "SELECT cod_prod, nome_prod, grupo_produto, status_prod FROM produto WHERE CAST(cod_prod AS VARCHAR) LIKE $1;", [`%${cod}%`]
+      "SELECT cod_prod, nome_prod, grupo_produto, CASE WHEN status_prod = true then 'Ativo' else 'Inativo' end as status_prod  FROM produto WHERE CAST(cod_prod AS VARCHAR) LIKE $1;", [`%${cod}%`]
     );
     res.json(produtos).status(200);
   } catch (error) {
@@ -172,7 +172,7 @@ app.post("/produtos", requirePermissao(["VEN", "ADM", "CON", "PRD"]), async (req
     const stat = req.body.stat;
 
     const novoProduto = await db.one(
-      "INSERT INTO produto (cod_prod, nome_prod, grupo_produto, status_prod) VALUES ($1, $2, $3, $4) RETURNING cod_prod;",
+      "INSERT INTO produto (cod_prod, nome_prod, grupo_produto, status_prod) VALUES ($1, $2, $3, CASE WHEN $4 = 'ativo' then true else false end) RETURNING cod_prod;",
       [cod, nome, grupo, stat]
     );
     console.log(`Produto criado de código: ${cod}`);
@@ -1027,7 +1027,7 @@ app.get("/balancoestoque/:datafiltro", requirePermissao(["ADM", "VEN", "CON", "P
 
 // -------------------- APIs de Usuairo  ------------------//
 
-app.post("/usuarios", requirePermissao(["ADM"]), async (req, res) => {
+app.post("/usuarios",requirePermissao(["ADM"]), async (req, res) => {
 	const saltRounds = 10;
 	try {
 
@@ -1038,9 +1038,9 @@ app.post("/usuarios", requirePermissao(["ADM"]), async (req, res) => {
     const permissao = req.body.permissao;
 		const salt = bcrypt.genSaltSync(saltRounds);
 		const senhahashe = bcrypt.hashSync(senha, salt);
-
+   
 		console.log(`Email: ${email} - Senha: ${senhahashe}`);
-		db.none("INSERT INTO usuario (email_usu, nome_usu, senha_usu, siglaper) VALUES ($1, $2, $3, $4);", [
+		db.none("INSERT INTO usuario (email_usu, nome_usu, senha_usu, siglaper) VALUES ($1, $2, $3, CASE WHEN $4 = 'geral' THEN 'ADM' WHEN $4 = 'venda' THEN 'VEN' WHEN $4 = 'producao' THEN 'PRD' ELSE 'CON' END);", [
 			email,
 			nome,
       senhahashe,
@@ -1068,13 +1068,14 @@ app.get("/usuarios", requirePermissao(["ADM"]), async (req, res) => {
 });
 
 
+
 //Pega usuario conforme id informado
 app.get("/usuarios/:email", requirePermissao(["ADM"]), async (req, res) => {
   try {
     const email = req.params.email;
     console.log(`Retornando usuairo email: ${email}.`);
     const usuario = await db.one(
-      "select us.nome_usu, us.email_usu, pe.descricao_per, us.siglaper from usuario us INNER JOIN permissao pe ON us.siglaper = pe.sigla_per and us.email_usu = $1;",[email]
+      "select us.nome_usu, us.email_usu, pe.descricao_per, CASE WHEN us.siglaper = 'ADM' THEN 'geral' WHEN us.siglaper = 'CON' THEN 'contado' WHEN us.siglaper = 'PRD' THEN 'producao' else 'producao' END AS siglaper from usuario us INNER JOIN permissao pe ON us.siglaper = pe.sigla_per and us.email_usu = $1;",[email]
     );
     res.json(usuario).status(200);
   } catch (error) {
@@ -1111,7 +1112,7 @@ app.put("/usuarios/:email", requirePermissao(["ADM"]), async (req, res) => {
     const permissao = req.body.permissao;
     const emailalt = req.params.email;
   
-    await db.none("UPDATE usuario SET email_usu=$1, nome_usu=$2, siglaper=$3  WHERE email_usu=$4;", [
+    await db.none("UPDATE usuario SET email_usu=$1, nome_usu=$2, siglaper=(CASE WHEN $3 = 'geral' THEN 'ADM' WHEN $3 = 'venda' THEN 'VEN' WHEN $3 = 'producao' THEN 'PRD' ELSE 'CON' END)  WHERE email_usu=$4;", [
       email, nome, permissao, emailalt
     ]);
 

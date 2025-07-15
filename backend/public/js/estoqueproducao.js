@@ -5,14 +5,14 @@ axios.defaults.headers.common["Content-Type"] =
 const token = localStorage.getItem("token");
 
 
-
 //Abaxio ao clicar no link de sair é feito o logout
 $(document).on("click", "#logoutSair", function (e) {
   e.preventDefault();
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 });
     
+
 
 
 
@@ -101,43 +101,59 @@ function createAjaxPost() {
     const codProd = data.cod;
     const qdtdesti = parseInt(data.qtdest);
 
-    const res = axios.post('/estoqueproducao', data, {headers: {Authorization: `Bearer ${token}`}});
-    res.then((query) => {
-        console.log(query.data);
-        // Limpar os campos do formulário após sucesso
-        $('#codprod').val('');
-        $('#nome').val('');
-        $('#grupo').val('');
-        $('#qtdest').val('');
-        $('#validade').val('');
-        $('#datest').val('');
-
-        // Resetar a validação do formulário
-        $('#mainForm').validate().resetForm();
-
-        // Após inserir, buscar e exibir todos os dados
-        loadDataTable();
-    }).catch((error) => {
-        console.log(error);
-    });
-    
-    //Abaixo verificar se tem historico estoque do produto no dia, caso sim então é feito a atualização conforme o valor e caso não é inserido no historico.
-    axios.get(`/contagemhistoricoestoque/${codProd}`, {headers: {Authorization: `Bearer ${token}`}}).then((response) => {
+     axios.get(`/contagemestoqueinicial/${codProd}`, {headers: {Authorization: `Bearer ${token}`}}).then((response) => {
           const quantidade = response.data;
           if (quantidade.qtd === "0") {
-            axios.post('/historicoestoque', {
-                cod: codProd,
-                qtdest: qdtdesti,
-                qtdVendas: 0
-            }, {headers: {Authorization: `Bearer ${token}`}});  
+              $('#mainForm').validate().showErrors({
+                    "codprod": "Não existe um cadastro de Produto ou Estoque Inicial com esse código."
+                });
           } else{
-            axios.put('/historicoestoqueproducao', { cod: codProd }, {headers: {Authorization: `Bearer ${token}`}});
-          }
 
-        })
+                const res = axios.post('/estoqueproducao', data, {headers: {Authorization: `Bearer ${token}`}});
+                res.then((query) => {
+                console.log(query.data);
+                
+                 alert("Produção cadastrada com sucesso!");
+                // Limpar os campos do formulário após sucesso
+                 $('#codprod').val('');
+                 $('#nome').val('');
+                 $('#grupo').val('');
+                 $('#qtdest').val('');
+                 $('#validade').val('');
+                 
+
+                 // Resetar a validação do formulário
+                $('#mainForm').validate().resetForm();
+
+                // Após inserir, buscar e exibir todos os dados
+                loadDataTable();
+                }).catch((error) => {
+                console.log(error);
+            });
+    
+            //Abaixo verificar se tem historico estoque do produto no dia, caso sim então é feito a atualização conforme o valor e caso não é inserido no historico.
+            axios.get(`/contagemhistoricoestoque/${codProd}`, {headers: {Authorization: `Bearer ${token}`}}).then((response) => {
+            const quantidade = response.data;
+                 if (quantidade.qtd === "0") {
+                      axios.post('/historicoestoque', {
+                      cod: codProd,
+                      qtdest: qdtdesti,
+                      qtdVendas: 0
+                 }, {headers: {Authorization: `Bearer ${token}`}});  
+                } else{
+                        axios.put('/historicoestoqueproducao', { cod: codProd }, {headers: {Authorization: `Bearer ${token}`}});
+                }
+
+                })
+                         .catch((error) => {
+                     console.error("Erro na requisição:", error);
+                });
+            }
+             })
           .catch((error) => {
-            console.error("Erro na requisição:", error);
+            console.error("Erro ao contar estoque inicial:", error);
     });
+     
 
 }
 

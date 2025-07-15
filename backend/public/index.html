@@ -1,60 +1,60 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
 
-  <head>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-  </head>
+    body, html {
+      height: 100%;
+      margin: 0;
+      background-color: rgb(33, 33, 33);
+    }
 
+    .center-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    .form-box {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
 <body>
- 
-    
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-2 min-vh-100 p-3" style="background-color: rgb(33, 33, 33);">
-      <div style="text-align: center;">
-      <img src="https://www.mimassas.com.br/arquivos_personalizados/imagens/logomarca.png" alt="imagem brasão com a escrita mimassas" width="150" height="75">
-      </div>
-      <!-- Barra de navegação esquerda-->
-      <br>
-      <nav class="sidebar d-flex flex-column">
-        <a class="nav-link px-3" href="produto.html" style="color:white;">Produtos</a>
-        <a class="nav-link px-3" href="estoqueinicial.html" style="color: white;">Estoque Inicial</a>
-        <a class="nav-link px-3" href="estoquecontado.html" style="color: white;">Estoque Contado</a>
-        <a class="nav-link px-3" href="estoqueproducao.html" style="color: white;">Produção</a>
-        <a class="nav-link px-3" href="vendas.html" style="color: white;">Vendas</a>
-        <a class="nav-link px-3" href="index.html" style="color: white;">Balanço Estoque</a>
-        </nav>
-        <div class="mt-auto">
-           <hr class="border-light mx-3">
-           <a class="nav-link" href="usuarios.html" style="color:white;">Usuários</a>
+
+  <div class="center-container">
+    <div class="form-box">
+      <form id="mainForm">
+        <h3>Digite o E-mail e Senha:</h3>
+        <div class="form-group">
+          <label for="nomeLogin" class="col-form-label">E-mail:</label>
+          <input type="email" class="form-control" id="nomeLogin" name="nomeLogin">
         </div>
-        <a class="nav-link text-danger" href="#" id="logoutSair">Sair</a>
-      </div>
-     
+        <div class="form-group">
+          <label for="senhaLogin" class="col-form-label">Senha:</label>
+          <input type="password" class="form-control" id="senhaLogin" name="senhaLogin">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+      </form>
+    </div>
+  </div>
 
-      <div class="col-10 p-4">
-
-       <h2>Balanço de Estoque</h2>
-       <div class="text-right w-100 pr-4 pt-3">
-        Filtrar Data:
-        <input type="date" id="filtroDataBalanco">
-       </div>
-      <!--Matriz com produtos-->
-      <div id="rowTable" class="row col-12 vh-100 p-3"></div>
-      <!---->
-
-</div></div></div>
-
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/localization/messages_pt_BR.js"></script>
-<script src="js/index.js"></script>
-
+<script src="js/login.js"></script>
 </body>
+
 </html>

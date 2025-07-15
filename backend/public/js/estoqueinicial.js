@@ -6,11 +6,11 @@ const token = localStorage.getItem("token");
     
 
 
-//Abaixo ao clicar no link de sair é feito o logout
+//Abaxio ao clicar no link de sair é feito o logout
 $(document).on("click", "#logoutSair", function (e) {
   e.preventDefault();
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 });
     
 

@@ -10,10 +10,9 @@ const token = localStorage.getItem("token");
 $(document).on("click", "#logoutSair", function (e) {
   e.preventDefault();
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 });
     
-
 
 
 $(document).ready(() => {
@@ -64,15 +63,16 @@ function validateFiels(element, event) {
 
 //Função abaixo da um post de um novo usuario
 function createAjaxPost() {
+
     const data = {
         nome: $('#nomeusuario')[0].value,
         email: $('#emailusuario')[0].value,
         senha: $('#senhausuario')[0].value,
         permissao: $('#permissao')[0].value
     }
-   
+
     console.log("Teste");
-    const res = axios.post('/usuarios', data);
+    const res = axios.post('/usuarios', data, {headers: {Authorization: `Bearer ${token}`}});
     res.then((query) => {
         console.log(query.data);
         alert("Usuário cadastrado com sucesso!");
@@ -80,7 +80,6 @@ function createAjaxPost() {
         $('#nomeusuario').val('');
         $('#emailusuario').val('');
         $('#senhausuario').val('');
-        $('#permissao').val('');
 
         // Resetar a validação do formulário
         $('#mainForm').validate().resetForm();

@@ -13,11 +13,11 @@
 
 <div class="container-fluid">
   <div class="row">
-    <div class="col-2 min-vh-100 p-3" style="background-color: rgb(33, 33, 33);">
-      <div style="text-align: center;">
-      <img src="https://www.mimassas.com.br/arquivos_personalizados/imagens/logomarca.png" alt="imagem brasão com a escrita mimassas" width="150" height="75">
-     </div>
-      <!-- Barra de navegação esquerda-->
+     <div class="col-2 min-vh-100 p-3" style="background-color: rgb(33, 33, 33);">
+          <div style="text-align: center;">
+            <img src="imagem_logo_mimassas.png" alt="imagem brasão com a escrita mimassas" style="width: 80%; height: auto;">
+      </div>
+        <!-- Barra de navegação esquerda-->
       <br>
       <nav class="sidebar d-flex flex-column">
         <a class="nav-link px-3" href="produto.html" style="color:white;">Produtos</a>
@@ -25,15 +25,16 @@
         <a class="nav-link px-3" href="estoquecontado.html" style="color: white;">Estoque Contado</a>
         <a class="nav-link px-3" href="estoqueproducao.html" style="color: white;">Produção</a>
         <a class="nav-link px-3" href="vendas.html" style="color: white;">Vendas</a>
-        <a class="nav-link px-3" href="index.html" style="color: white;">Balanço Estoque</a>
+        <a class="nav-link px-3" href="balanco.html" style="color: white;">Balanço Estoque</a>
         </nav>
         <div class="mt-auto">
            <hr class="border-light mx-3">
            <a class="nav-link" href="usuarios.html" style="color:white;">Usuários</a>
         </div>
-        <a class="nav-link text-danger" href="#" id="logoutSair">Sair</a>
+        <a class="nav-link text-danger" href="index.html" id="logoutSair">Sair</a>
       </div>
-    
+     
+      <!--    -->
       
     <div class="col-10 p-4">
        <h2>Produtos</h2>
@@ -65,10 +66,11 @@
              <label for="grupo-label" class="col-form-label">Grupo Produto:</label>
             <input type="text" class="form-control" id="grupo" name="grupo">
           </div>
-          <div class="form-group">
-             <label for="stat-label" class="col-form-label">Status:</label>
-            <input type="text" class="form-control" id="stat" name="stat">
-          </div>
+          <label for="status-label" class="col-form-label">Status:</label>
+          <select class="form-control" id="stat" name="stat">
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+          </select>
         </form>
        </div>
        <div class="modal-footer">
@@ -103,8 +105,11 @@
             <input type="text" class="form-control" id="editGrupo" name="editGrupo">
           </div>
           <div class="form-group">
-             <label for="stat-label" class="col-form-label">Status:</label>
-            <input type="text" class="form-control" id="editStatus" name="editStatus">
+             <label for="editStatus" class="col-form-label">Status:</label>
+             <select class="form-control" id="editStatus" name="editStatus">
+                <option value="true">Ativo</option>
+                <option value="false">Inativo</option>
+              </select>
           </div>
         </form>
       </div>
@@ -126,6 +131,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/localization/messages_pt_BR.js"></script>
 <script src="js/produto.js"></script>
+<script src="js/navbarpermissao.js"></script>
 
 </body>
 </html>
