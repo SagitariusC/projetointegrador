@@ -24,5 +24,32 @@ Para executar é necessário copiar ou baixar e dar um npm install e npm run dev
 da pasta.
 
 
+# Pasta Backend
+Contêm os códigos do backend do sistema.
+Para executar é necssário dar um npm install e npm nodemon server.js e abrir no navegador o link "http://localhost:3002/"
+no navegador.
+Obs: Para executar basta baixar a pasta backend e fazer os passo acima.
+
+
+# Instruções de execução
+Criar um banco "controle_estoque" ou do nome que desejar usando PostgreSQL, executar o arquivo
+"modelo_fisico.sql" no banco criado, após sucesso na criação do banco e das tabelas, é necessário
+adicionar as permissões (não existe um CRUD de permissão, não tem RF pra isso) então
+execute "insert into permissao (sigla_per, descricao_per) VALUES('VEN','Venda'), ('PRD','Produção'), ('CON','Estoque Contado'), ('ADM','Geral');" 
+no banco criado, outra coisa, como é feito hash para criação de senha dos usuários e a tabela de usuários tem senha
+com VARCHAR(20) é necsssário aumentar o tamanho do atributo então execute "alter table usuario alter column senha_usu type varchar(200);", após 
+isso insere o na tabela de usuários um novo usuário com "insert into usuario(email_usu, nome_usu, senha_usu, siglaper) values('teste@teste.com', 'Teste', '$2b$10$nw2Ukh06VVIZJjvjYRIktOQLtkrOFzkOGlsW65HwZPAJLSBpT2cT.', 'ADM');", após esse preparatório, baixa a pasta backend (abre o server.js e
+altera o usário, a senha do banco e altera o nome do banco se for diferente de "controle_estoque" no seguinte trecho de código:
+
+"const usuario = "postgres";
+const senha = "senha";
+const db = pgp(`postgres://${usuario}:${senha}@localhost:5432/controle_estoque`);"
+
+e executa npm install e nodemon server.js na pasta backend, então abre no navegador o link "http://localhost:3002/", vai ir para uma tela de login, o e-mail é
+"teste@teste.com" e asenha é "senha" :)
+
+
+
+
 
 
