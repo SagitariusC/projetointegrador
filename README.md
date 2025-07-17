@@ -41,7 +41,7 @@ isso insere o na tabela de usuários um novo usuário com "insert into usuario(e
 altera o usário, a senha do banco e altera o nome do banco se for diferente de "controle_estoque" no seguinte trecho de código:
 
 "const usuario = "postgres";
-const senha = "pr3dict";
+const senha = "senha";
 const db = pgp(`postgres://${usuario}:${senha}@localhost:5432/controle_estoque`);"
 
 e executa npm install e nodemon server.js na pasta backend, então abre no navegador o link "http://localhost:3002/", vai ir para uma tela de login, o e-mail é
